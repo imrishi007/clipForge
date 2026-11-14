@@ -1,0 +1,36 @@
+'use client';
+import Link from 'next/link';
+import {usePathname,useRouter} from 'next/navigation';
+import {useState,useEffect} from 'react';
+import {Film,House,FolderOpen,Layers,Flag,Download,Settings as SettingsIcon,BookOpen,Search,HardDrive,Sun,Moon,ChevronRight} from 'lucide-react';
+import {resolveTheme} from '@/lib/theme';
+import type {Settings} from '@/lib/model';
+import {WorkspaceProvider,useWorkspace} from './workspace-context';
+import {Modal,Empty} from './ui';
+import {Dashboard,ProjectLibrary,ImportProject,ProjectDetail} from './project-pages';
+import {Editor} from './editor';
+import {ExportsPage} from './exports-page';
+import {TemplatesPage} from './templates-page';
+import {CampaignsPage} from './campaigns-page';
+import {SettingsPage} from './settings-page';
+import {HelpPage} from './help-page';
+const links=[['/dashboard','Overview',House],['/projects','Projects',FolderOpen],['/templates','Templates',Layers],['/campaigns','Campaigns',Flag],['/exports','Exports',Download],['/settings','Settings',SettingsIcon],['/help','Help & shortcuts',BookOpen]] as const;
+export function Workspace(){return <WorkspaceProvider><Shell/></WorkspaceProvider>;}
+function Shell(){const w=useWorkspace();const path=usePathname();const router=useRouter();const editor=path.startsWith('/editor');const [palette,setPalette]=useState(false);const [query,setQuery]=useState('');
+useEffect(()=>{const media=matchMedia('(prefers-color-scheme: dark)');const apply=()=>{document.documentElement.dataset.theme=resolveTheme(w.data.settings.theme,editor,media.matches);};apply();media.addEventListener('change',apply);return()=>media.removeEventListener('change',apply);},[w.data.settings.theme,editor]);
+useEffect(()=>{const handler=(e:KeyboardEvent)=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();setPalette(v=>!v);}};window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler);},[]);
+const parts=path.split('/').filter(Boolean);const project=w.data.projects.find(p=>p.id===(editor?parts[1]:parts[1]));
+let content:React.ReactNode;
+if(!w.ready)content=<div className="loading" role="status">Opening your workspace…</div>;
+else if(path==='/'||path==='/dashboard')content=<Dashboard/>;
+else if(path==='/projects')content=<ProjectLibrary/>;
+else if(path==='/projects/new')content=<ImportProject/>;
+else if(path==='/exports')content=<ExportsPage/>;
+else if(path==='/templates')content=<TemplatesPage/>;
+else if(path==='/settings')content=<SettingsPage/>;
+else if(path==='/help')content=<HelpPage/>;
+else if(parts[0]==='campaigns'&&parts.length<=2)content=<CampaignsPage key={parts[1]||'list'} id={parts[1]}/>;
+else if(parts[0]==='projects'&&project)content=<ProjectDetail project={project} tab={parts[2]||'overview'}/>;
+else if(editor&&project&&project.clips.find(c=>c.id===parts[2]))content=<Editor key={parts[2]} project={project} clip={project.clips.find(c=>c.id===parts[2])!}/>;
+else content=<Empty title={links.find(([href])=>path===href)?.[1]||'Workspace not found'} description="This workspace is being connected. Your saved projects remain available."><Link href="/projects" className="button">Open projects</Link></Empty>;
+return <div className={`app-shell ${editor?'editor-shell':''}`}><aside className="sidebar"><Link href="/dashboard" className="brand"><span className="brand-mark"><Film size={22}/></span><span>ClipForge<span className="brand-sub">STUDIO / PERSONAL</span></span></Link><div className="nav-label">WORKSPACE</div><nav>{links.slice(0,5).map(([href,label,Icon])=><Link key={href} href={href} className={path.startsWith(href)?'active':''}><Icon size={18}/>{label}</Link>)}</nav><div className="sidebar-bottom"><div className="local-note"><HardDrive size={16}/><div>Made for your machine<small>Your media stays local.</small></div></div><nav>{links.slice(5).map(([href,label,Icon])=><Link key={href} href={href} className={path===href?'active':''}><Icon size={18}/>{label}</Link>)}</nav></div></aside><section className="main-shell"><header className="topbar"><span>Workspace <span className="slash">/</span> {editor?'Editor':links.find(([href])=>path.startsWith(href))?.[1]||'Overview'}</span><div className="top-actions"><button className="search-trigger ghost" onClick={()=>setPalette(true)}><Search size={15}/>Find a project<kbd>Ctrl K</kbd></button><label className="theme-control"><Sun size={15}/><select aria-label="Appearance" value={w.data.settings.theme} onChange={e=>void w.saveSettings({...w.data.settings,theme:e.target.value as Settings['theme']}).catch(e=>w.notify(e.message))}><option value="auto">Workspace theme</option><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select><Moon size={14}/></label><span className="avatar">R</span></div></header><main className={editor?'editor-main':'page'}>{content}</main><footer className="statusbar"><span><span className={`status-dot ${w.online?'':'offline'}`}/>{w.online?'Media service connected':'Browser workspace · Media service offline'}</span><span>ClipForge Studio · Personal Edition</span></footer></section>{w.message&&<div role="status" className="toast">{w.message}</div>}{palette&&<Modal title="Jump to a project" onClose={()=>setPalette(false)}><input autoFocus placeholder="Search projects…" aria-label="Search projects in command palette" value={query} onChange={e=>setQuery(e.target.value)}/><div className="command-results">{w.data.projects.filter(p=>p.title.toLowerCase().includes(query.toLowerCase())).map(p=><button key={p.id} onClick={()=>{router.push(`/projects/${p.id}`);setPalette(false);}}><Film size={16}/>{p.title}<ChevronRight size={16}/></button>)}<button onClick={()=>{router.push('/projects/new');setPalette(false);}}>Import your video<ChevronRight size={16}/></button></div></Modal>}</div>;}

@@ -1,0 +1,3 @@
+import {test,expect} from 'playwright/test';
+test('foundation and visual themes',async({page})=>{const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/dashboard');await expect(page.getByRole('heading',{name:'A good story starts here.'})).toBeVisible();for(const theme of ['light','dark']){await page.getByLabel('Appearance',{exact:true}).selectOption(theme);await expect(page.locator('html')).toHaveAttribute('data-theme',theme);await page.screenshot({path:`test-results/dashboard-${theme}.png`,fullPage:true});}await page.reload();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');expect(errors).toEqual([]);});
+

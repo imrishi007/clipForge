@@ -1,0 +1,9 @@
+# Optional AI dependencies. Install into the Python environment used by the API.
+-r requirements.txt
+faster-whisper==1.2.1
+# faster-whisper 1.2.1 passes metadata_errors to av.open.
+av==16.1.0
+psutil==7.2.2
+scenedetect-headless==0.7.1
+# OpenCV 5's standard headless wheel does not expose CascadeClassifier.
+opencv-python-headless==4.13.0.92

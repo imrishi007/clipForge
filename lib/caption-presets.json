@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Podcast Clean",
+    "description": "Clear words. Nothing in the way.",
+    "color": "#FFFFFF",
+    "fontSize": 52,
+    "captionBackground": true,
+    "bold": true,
+    "captionAnimation": "none",
+    "captionHighlight": "#F5D68C",
+    "captionY": 74,
+    "zoomPercent": 100,
+    "cropMode": "fill",
+    "saturation": 1,
+    "volume": 1,
+    "fadeIn": 0.08,
+    "fadeOut": 0.12
+  },
+  {
+    "name": "Cinematic Story",
+    "description": "A quieter, considered rhythm.",
+    "color": "#F5D68C",
+    "fontSize": 46,
+    "captionBackground": false,
+    "bold": false
+  },
+  {
+    "name": "Editorial Minimal",
+    "description": "Type that lets the story breathe.",
+    "color": "#FFFFFF",
+    "fontSize": 40,
+    "captionBackground": false,
+    "bold": false
+  },
+  {
+    "name": "Gaming Focus",
+    "description": "Strong contrast for fast moments.",
+    "color": "#F5E642",
+    "fontSize": 64,
+    "captionBackground": true,
+    "bold": true
+  },
+  {
+    "name": "Educational",
+    "description": "Readable ideas, one at a time.",
+    "color": "#FFFFFF",
+    "fontSize": 50,
+    "captionBackground": true,
+    "bold": true
+  }
+]
